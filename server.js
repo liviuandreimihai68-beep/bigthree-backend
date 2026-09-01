@@ -35,9 +35,9 @@ function aspect(diff){
   if(dd === 3) return 0;   // square
   return 1;
 }
-const PAIRS = [['moon','moon',3],['sun','moon',3],['moon','sun',3],
-               ['rise','moon',2],['moon','rise',2],['sun','sun',2],
-               ['sun','rise',1],['rise','sun',1],['rise','rise',1]];
+const PAIRS = [['moon','moon',2],['sun','moon',2],['moon','sun',2],
+               ['rise','moon',2],['moon','rise',2],['sun','sun',3],
+               ['sun','rise',2],['rise','sun',2],['rise','rise',2]];
 
 function score(a, b){
   const withRise = a.rise !== null && b.rise !== null;
