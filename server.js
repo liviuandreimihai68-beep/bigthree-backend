@@ -184,6 +184,8 @@ app.post('/api/signup', async (req, res) => {
   const moonGroups = String(process.env.ML_MOON_GROUPS || '').split(',').map(s => s.trim());
   const groups = [process.env.ML_GROUP_ALL, moonGroups[moon]].filter(Boolean);
   if(b.news) groups.push(process.env.ML_GROUP_NEWS);
+  // ticked the group-chat box: lands in its own group so you can send the invite link
+  if(b.group && process.env.ML_GROUP_TELEGRAM) groups.push(process.env.ML_GROUP_TELEGRAM);
 
   const me = {email, name, sun, moon, rise, shareEmail: !!b.shareEmail};
 
