@@ -35,9 +35,9 @@ function aspect(diff){
   if(dd === 3) return 0;   // square
   return 1;
 }
-const PAIRS = [['moon','moon',2],['sun','moon',2],['moon','sun',2],
-               ['rise','moon',2],['moon','rise',2],['sun','sun',3],
-               ['sun','rise',2],['rise','sun',2],['rise','rise',2]];
+// Same position against same position: Sun with Sun, Moon with Moon,
+// Rising with Rising. The Sun weighs most.
+const PAIRS = [['sun','sun',3],['moon','moon',2],['rise','rise',2]];
 
 function score(a, b){
   const withRise = a.rise !== null && b.rise !== null;
@@ -50,18 +50,9 @@ function score(a, b){
   return Math.round(raw / (weight * 5) * 100);
 }
 
-// The best score a person can reach depends on their own chart: some top out
-// near 100, others near 50. A fixed threshold would leave the low ones never
-// matching, so everyone is measured against their own ceiling.
-function ceiling(p){
-  let best = 0;
-  const withRise = p.rise !== null;
-  for(let s = 0; s < 12; s++) for(let m = 0; m < 12; m++){
-    if(withRise){ for(let r = 0; r < 12; r++) best = Math.max(best, score(p, {sun:s, moon:m, rise:r})); }
-    else best = Math.max(best, score(p, {sun:s, moon:m, rise:null}));
-  }
-  return best;
-}
+// Comparing like with like means anyone can reach 100, so a plain
+// threshold works and is far easier to explain than a relative one.
+const THRESHOLD = 75;
 
 // Moon carries three times the weight of anything else, so a strong match
 // almost always has a Moon that sits well against theirs. Reading only those
@@ -142,7 +133,6 @@ async function notify(person, other, points){
 // match, or null if nobody clears the bar for both sides.
 async function findMatch(me){
   const moonGroups = String(process.env.ML_MOON_GROUPS || '').split(',').map(s => s.trim());
-  const myCeiling = ceiling(me);
   const seen = new Set([me.email]);
 
   let best = null, bestPoints = 0;
@@ -158,8 +148,7 @@ async function findMatch(me){
 
       const points = score(me, other);
       if(points <= bestPoints) continue;
-      if(points < 0.85 * myCeiling) continue;
-      if(points < 0.85 * ceiling(other)) continue;
+      if(points < THRESHOLD) continue;
       best = other; bestPoints = points;
     }
   }
