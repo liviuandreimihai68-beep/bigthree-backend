@@ -111,10 +111,12 @@ const signsOf = p => p.rise === null
 // Write the match onto the subscriber, then drop them into the group that
 // fires the automation. Removing first lets it fire again next time.
 async function notify(person, other, points){
-  await ml('/subscribers', {
-    method: 'POST',
+  // Update by id, not by posting the email again. Posting to /subscribers is an
+  // upsert, and MailerLite treats it as a fresh signup — which fired a second
+  // confirmation email at the same second as the first.
+  await ml(`/subscribers/${person.id}`, {
+    method: 'PUT',
     body: JSON.stringify({
-      email: person.email,
       fields: {
         match_name: other.name,
         match_signs: signsOf(other),
